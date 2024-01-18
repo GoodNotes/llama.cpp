@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 @MainActor
 class LlamaState: ObservableObject {
@@ -18,6 +19,7 @@ class LlamaState: ObservableObject {
         } catch {
             messageLog += "Error!\n"
         }
+        UIDevice.current.isBatteryMonitoringEnabled = true
     }
 
     func loadModel(modelUrl: URL?) throws {
@@ -83,10 +85,14 @@ class LlamaState: ObservableObject {
             return
         }
 
+        let startBatteryLevel = UIDevice.current.batteryLevel
         let result = await llamaContext.bench(pp: 512, tg: 128, pl: 1, nr: 3)
+        let endBatteryLevel = UIDevice.current.batteryLevel
+        let batteryUsed = startBatteryLevel - endBatteryLevel
 
         messageLog += "\(result)"
         messageLog += "\n"
+        messageLog += "Benchmark used \(batteryUsed)% battery\n"
     }
 
     func clear() async {
